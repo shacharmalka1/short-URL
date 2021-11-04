@@ -1,24 +1,25 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
+const ShortUrl = require("./models/shortUrl");
 const cors = require("cors");
 require("dotenv").config();
-const ShortUrl = require("./models/shortUrl");
+const db_Uri =
+  "mongodb+srv://shachar:sgo21426@cluster0.oriwg.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 
 mongoose
-  .connect(process.env.DB_URI, {
+  .connect(db_Uri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("yes");
+    console.log("connected to database successfully");
   })
   .catch(() => {
-    console.log("no");
+    console.log("connection to database failed");
   });
 
 app.use(cors());
-
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 
@@ -29,8 +30,19 @@ app.get("/", async (req, res) => {
 
 app.post("/shortUrls", async (req, res) => {
   await ShortUrl.create({ full: req.body.fullUrl });
-
   res.redirect("/");
+});
+
+app.get("/clear", async (req, res) => {
+  await ShortUrl.deleteMany({});
+  const shortUrls = await ShortUrl.find();
+  res.render("index", { shortUrls: shortUrls });
+});
+
+app.get("/clearone/:shortUrlId", async (req, res) => {
+  await ShortUrl.deleteOne({ short: req.params.shortUrlId });
+  const shortUrls = await ShortUrl.find();
+  res.render("index", { shortUrls: shortUrls });
 });
 
 app.get("/:shortUrl", async (req, res) => {
@@ -43,4 +55,6 @@ app.get("/:shortUrl", async (req, res) => {
   res.redirect(shortUrl.full);
 });
 
-app.listen(process.env.PORT || 5000);
+app.listen(process.env.PORT || 8080, () => {
+  console.log(`Listening on port ${process.env.PORT}:`);
+});
