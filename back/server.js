@@ -45,15 +45,15 @@ app.get("/clearone/:shortUrlId", async (req, res) => {
   res.render("index", { shortUrls: shortUrls });
 });
 
-// app.get("/:shortUrl", async (req, res) => {
-//   const shortUrl = await ShortUrl.findOne({ short: req.params.shortUrl });
-//   if (shortUrl == null) return res.sendStatus(404);
+app.get("/:shortUrl", async (req, res) => {
+  const shortUrl = await ShortUrl.findOne({ short: req.params.shortUrl });
+  if (shortUrl == null) return res.sendStatus(404);
 
-//   shortUrl.clicks++;
-//   shortUrl.save();
+  shortUrl.clicks++;
+  shortUrl.save();
 
-//   res.redirect(shortUrl.full);
-// });
+  res.redirect(shortUrl.full);
+});
 
 app.listen(process.env.PORT || 8080, () => {
   console.log(`Listening on port ${process.env.PORT}:`);
